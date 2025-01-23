@@ -7,6 +7,7 @@ import com.selyunina.wallet.exception_handling.IncorrectInformationException;
 import com.selyunina.wallet.repository.WalletRepository;
 import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository walletRepository;
@@ -38,25 +40,30 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletDto updateBalance(WalletRequestDto request) {
-        Wallet wallet = findById(request.walletId());
+        try {
+            Wallet wallet = findById(request.walletId());
 
-        BigDecimal newBalance;
-        switch (request.operationType()) {
-            case DEPOSIT -> newBalance = wallet.getBalance().add(request.amount());
-            case WITHDRAW -> {
-                newBalance = wallet.getBalance().subtract(request.amount());
-                if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                    throw new IncorrectInformationException(
-                            "The balance cannot be less than zero. You have entered an amount that exceeds the account balance",
-                            HttpStatus.BAD_REQUEST);
+            BigDecimal newBalance;
+            switch (request.operationType()) {
+                case DEPOSIT -> newBalance = wallet.getBalance().add(request.amount());
+                case WITHDRAW -> {
+                    newBalance = wallet.getBalance().subtract(request.amount());
+                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new IncorrectInformationException(
+                                "The balance cannot be less than zero. You have entered an amount that exceeds the account balance",
+                                HttpStatus.BAD_REQUEST);
+                    }
                 }
+                default -> throw new RuntimeException("Invalid operationType");
             }
-            default -> throw new RuntimeException("Invalid operationType");
-        }
-        wallet.setBalance(newBalance);
+            wallet.setBalance(newBalance);
 
-        walletRepository.save(wallet);
-        return WalletDto.from(wallet);
+            walletRepository.save(wallet);
+            return WalletDto.from(wallet);
+        } catch (Exception e) {
+            log.error("error when changing balance from id {}", request.walletId(), e);
+            throw new RuntimeException("Internal server error", e);
+        }
     }
 
     @Override
