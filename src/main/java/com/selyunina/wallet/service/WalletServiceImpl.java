@@ -3,8 +3,10 @@ package com.selyunina.wallet.service;
 import com.selyunina.wallet.domain.Wallet;
 import com.selyunina.wallet.dto.WalletDto;
 import com.selyunina.wallet.dto.WalletRequestDto;
+import com.selyunina.wallet.exception_handling.IncorrectInformationException;
 import com.selyunina.wallet.repository.WalletRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,7 +44,9 @@ public class WalletServiceImpl implements WalletService {
             case WITHDRAW -> {
                 newBalance = wallet.getBalance().subtract(request.amount());
                 if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                    throw new RuntimeException("flkj");
+                    throw new IncorrectInformationException(
+                            "The balance cannot be less than zero. You have entered an amount that exceeds the account balance",
+                            HttpStatus.BAD_REQUEST);
                 }
             }
             default -> throw new RuntimeException("Invalid operationType");
@@ -60,6 +64,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     private Wallet findById(UUID id) {
-        return walletRepository.findById(id).orElseThrow();
+        return walletRepository.findById(id).orElseThrow(() ->
+                new IncorrectInformationException("Wallet with id " + id + " not found", HttpStatus.BAD_REQUEST));
     }
 }

@@ -9,14 +9,14 @@ import java.util.UUID;
 
 public record WalletRequestDto(
 
-        @NotNull
+        @NotNull(message = "The wallet ID is mandatory")
         UUID walletId,
 
-        @NotNull
+        @NotNull(message = "The type of operation is mandatory")
         OperationType operationType,
 
-        @NotNull
-        @DecimalMin(value = "0.01")
+        @NotNull(message = "The amount you want to deposit/withdraw from your account is mandatory")
+        @DecimalMin(value = "0.01", message = "The amount you want to deposit/withdraw from the account must be greater than 0")
         BigDecimal amount
 ) {
 }
