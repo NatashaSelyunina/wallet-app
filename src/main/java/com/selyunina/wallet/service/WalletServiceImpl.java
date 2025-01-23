@@ -5,7 +5,9 @@ import com.selyunina.wallet.dto.WalletDto;
 import com.selyunina.wallet.dto.WalletRequestDto;
 import com.selyunina.wallet.exception_handling.IncorrectInformationException;
 import com.selyunina.wallet.repository.WalletRepository;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -63,8 +65,8 @@ public class WalletServiceImpl implements WalletService {
         return WalletDto.from(wallet);
     }
 
-    private Wallet findById(UUID id) {
-        return walletRepository.findById(id).orElseThrow(() ->
+    private Wallet findById(@NonNull UUID id) {
+        return walletRepository.findByIdWithLock(id, LockModeType.PESSIMISTIC_WRITE).orElseThrow(() ->
                 new IncorrectInformationException("Wallet with id " + id + " not found", HttpStatus.BAD_REQUEST));
     }
 }
