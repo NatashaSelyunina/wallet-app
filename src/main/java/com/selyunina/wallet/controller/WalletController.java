@@ -3,6 +3,7 @@ package com.selyunina.wallet.controller;
 import com.selyunina.wallet.dto.WalletDto;
 import com.selyunina.wallet.dto.WalletRequestDto;
 import com.selyunina.wallet.service.WalletService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class WalletController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<WalletDto> updateBalance(@RequestBody WalletRequestDto request) {
+    public ResponseEntity<WalletDto> updateBalance(@Valid @RequestBody WalletRequestDto request) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(walletService.updateBalance(request));
     }
