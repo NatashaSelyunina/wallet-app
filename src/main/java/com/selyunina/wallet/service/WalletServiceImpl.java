@@ -1,6 +1,5 @@
 package com.selyunina.wallet.service;
 
-import com.selyunina.wallet.domain.OperationType;
 import com.selyunina.wallet.domain.Wallet;
 import com.selyunina.wallet.dto.WalletDto;
 import com.selyunina.wallet.dto.WalletRequestDto;
@@ -38,13 +37,15 @@ public class WalletServiceImpl implements WalletService {
         Wallet wallet = findById(request.walletId());
 
         BigDecimal newBalance;
-        if (request.operationType().equals(OperationType.DEPOSIT)) {
-            newBalance = wallet.getBalance().add(request.amount());
-        } else {
-            newBalance = wallet.getBalance().subtract(request.amount());
-            if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                throw new RuntimeException("ljf");
+        switch (request.operationType()) {
+            case DEPOSIT -> newBalance = wallet.getBalance().add(request.amount());
+            case WITHDRAW -> {
+                newBalance = wallet.getBalance().subtract(request.amount());
+                if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new RuntimeException("flkj");
+                }
             }
+            default -> throw new RuntimeException("Invalid operationType");
         }
         wallet.setBalance(newBalance);
 
