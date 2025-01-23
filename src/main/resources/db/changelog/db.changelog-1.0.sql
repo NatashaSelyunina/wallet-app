@@ -1,9 +1,9 @@
 --liquibase formatted sql
 
 --changeset selyunina:1
-CREATE TABLE IF NOT EXISTS wallet
+CREATE TABLE IF NOT EXISTS postgres.wallet
 (
     id uuid PRIMARY KEY ,
-    balance DECIMAL(19,2) NOT NULL ,
+    balance NUMERIC(19,2) NOT NULL ,
     created_at TIMESTAMP NOT NULL
 );

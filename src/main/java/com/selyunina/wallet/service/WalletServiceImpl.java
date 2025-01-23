@@ -5,6 +5,7 @@ import com.selyunina.wallet.domain.Wallet;
 import com.selyunina.wallet.dto.WalletDto;
 import com.selyunina.wallet.dto.WalletRequestDto;
 import com.selyunina.wallet.repository.WalletRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,6 +33,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Transactional
     public WalletDto updateBalance(WalletRequestDto request) {
         Wallet wallet = findById(request.walletId());
 
