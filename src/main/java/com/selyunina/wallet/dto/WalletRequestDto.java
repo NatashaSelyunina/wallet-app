@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record WalletRequest(
+public record WalletRequestDto(
 
         @NotNull
         UUID walletId,
