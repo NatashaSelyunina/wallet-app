@@ -40,30 +40,25 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletDto updateBalance(WalletRequestDto request) {
-        try {
-            Wallet wallet = findById(request.walletId());
+        Wallet wallet = findById(request.walletId());
 
-            BigDecimal newBalance;
-            switch (request.operationType()) {
-                case DEPOSIT -> newBalance = wallet.getBalance().add(request.amount());
-                case WITHDRAW -> {
-                    newBalance = wallet.getBalance().subtract(request.amount());
-                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                        throw new IncorrectInformationException(
-                                "The balance cannot be less than zero. You have entered an amount that exceeds the account balance",
-                                HttpStatus.BAD_REQUEST);
-                    }
+        BigDecimal newBalance;
+        switch (request.operationType()) {
+            case DEPOSIT -> newBalance = wallet.getBalance().add(request.amount());
+            case WITHDRAW -> {
+                newBalance = wallet.getBalance().subtract(request.amount());
+                if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                    throw new IncorrectInformationException(
+                            "The balance cannot be less than zero. You have entered an amount that exceeds the account balance",
+                            HttpStatus.BAD_REQUEST);
                 }
-                default -> throw new RuntimeException("Invalid operationType");
             }
-            wallet.setBalance(newBalance);
-
-            walletRepository.save(wallet);
-            return WalletDto.from(wallet);
-        } catch (Exception e) {
-            log.error("error when changing balance from id {}", request.walletId(), e);
-            throw new RuntimeException("Internal server error", e);
+            default -> throw new RuntimeException("Invalid operationType");
         }
+        wallet.setBalance(newBalance);
+
+        walletRepository.save(wallet);
+        return WalletDto.from(wallet);
     }
 
     @Override
