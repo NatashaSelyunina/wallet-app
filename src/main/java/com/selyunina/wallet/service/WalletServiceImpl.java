@@ -6,10 +6,14 @@ import com.selyunina.wallet.dto.WalletRequestDto;
 import com.selyunina.wallet.exception_handling.IncorrectInformationException;
 import com.selyunina.wallet.repository.WalletRepository;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,6 +42,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Retryable(value = OptimisticLockException.class, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     @Transactional
     public WalletDto updateBalance(WalletRequestDto request) {
         Wallet wallet = findById(request.walletId());
@@ -62,6 +67,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
+    @Cacheable(value = "wallets", key = "#id")
     public WalletDto getBalance(UUID id) {
         Wallet wallet = findById(id);
         return WalletDto.from(wallet);

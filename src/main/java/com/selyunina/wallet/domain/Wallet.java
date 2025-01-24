@@ -1,9 +1,6 @@
 package com.selyunina.wallet.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +18,9 @@ public class Wallet {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Version
+    private Long version;
 
     public Wallet(BigDecimal balance) {
         this.balance = balance;
